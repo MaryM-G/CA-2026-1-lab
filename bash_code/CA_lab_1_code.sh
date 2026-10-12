@@ -22,3 +22,17 @@ echo "Directory: $path"
 echo "Size: ${size_kb} KB"
 echo "Used: ${percent}% of 1 GB"
 
+echo "Set a threshold in percents for memory"
+read threshold
+
+if [ "$threshold" -gt 100 ]; then
+   echo "A threshold $threshold is not suitable, please enter the number under 100
+"
+   exit 1
+elif [ "$threshold" -lt 0 ]; then
+   echo "A threshold $threshold is not suitable, please enter the numer over 0"
+   exit 1
+fi
+
+if [ "$threshold" -ge "$percent" ]; then
+   echo "No files need to be deleted"

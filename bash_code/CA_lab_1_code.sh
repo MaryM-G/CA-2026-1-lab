@@ -31,14 +31,12 @@ if [ "$percent" -gt "$threshold" ]; then
      echo "Threshold exceeded. Archiving and removing oldest files..."
 
 
-     #1. Создаем /backup
      mkdir -p "$backup_dir"
 
 
      archive_name="backup_$(date +%Y-%m-%d_%H-%M-%S).tar.gz"
 
-
-     #2.Фильтрация старых файлов 
+ 
      oldest_files=$(find "$path" -type f -not -path "$backup_dir/*" -printf '%T+ %p\n' | sort | head -$M | cut -d' ' -f2-)
 
 
@@ -49,12 +47,11 @@ if [ "$percent" -gt "$threshold" ]; then
          echo "$oldest_files"
 
 
-         #3. Архивируем
          tar -czf "$backup_dir/$archive_name" -P $oldest_files
 
          if [ $? -eq 0]; then
              echo "Succesfully archived to: $backup_dir/$archive_name"
-             #4. Удаляем исходники
+        
              echo "$oldest_files | while IFS= read -r file; do
                  rm -f "$file"
                  echo "Removed from source: $file"

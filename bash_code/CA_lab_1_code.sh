@@ -15,7 +15,7 @@ fi
 
 IMAGE_FILE="/home/maria/1gb_lab_img"
 if [ ! -f "$IMAGE_FILE" ]; then
-   fallocate -1 1G "$IMAGE_FILE" 2>/dev/null
+   fallocate -l 1G "$IMAGE_FILE" 2>/dev/null
    mkfs.ext4 -F "$IMAGE_FILE" >/dev/null
 fi
 
@@ -104,7 +104,7 @@ select_files() {
         exit 1
     fi
 
-    if ! [[ "$THRESHOLD" =~ ^[0-9]+$ ]] || [ "$THRESHOLD" -lt 1 ] || [ "$THRESHOLD" -lt 1 ]] || [ "$THRESHOLD" -gt 100 ]; then
+    if ! [[ "$THRESHOLD" =~ ^[0-9]+$ ]] || [ "$THRESHOLD" -lt 1 ] || [ "$THRESHOLD" -gt 100 ]; then
         echo "Error: Threshold must be an integer between 1 and 100." >&2
         exit 1
     fi
@@ -115,7 +115,7 @@ select_files() {
     fi
 
     if [ ! -d "$LOG_DIR" ]; then
-        echo "Error: LOG_DIR "$LOG_DIR" does not exist." >&2
+        echo "Error: LOG_DIR $LOG_DIR does not exist." >&2
         exit 1
     fi
 
@@ -174,7 +174,7 @@ select_files() {
 
     echo "Creating archive: $archive_path"
 
-    if ! tar -czf "$archive_path" -C "$LOG_DIR" "${SELECTED[@]"; then
+    if ! tar -czf "$archive_path" -C "$LOG_DIR" "${SELECTED[@]}"; then
         echo "Error: Failed to create archive." >&2
         rm -f -- "$archive_path"
         exit 1

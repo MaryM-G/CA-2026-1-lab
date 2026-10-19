@@ -4,7 +4,7 @@
 export LC_ALL=C
 
 
-usage(){
+usage() {
     echo "Usage: $0 -p  LOG_DIR -b BACKUP_DIR [-x THRESHOLD] [-m COUNT]"
     echo " -p LOG_DIR    Каталог с лог-файлами"
     echo " -b BACKUP_DIR Каталог для архвивов"
@@ -16,18 +16,18 @@ usage(){
 }
 
 
-get_fs_bytes(){
+get_fs_bytes() {
     df -P -B1 "$1" | awk 'NR==2 {print $3, $3 + $4}'
 }
 
 
-percent_of(){
+percent_of() {
     local used="$1" total="$2"
     echo $(( (used * 100 + total - 1) / total ))
 }
 
 
-select_files(){
+select_files() {
     local need_bytes="$1" max_count="$2"
     local freed=0 count=0 rec name blocks bsize
 
@@ -84,17 +84,17 @@ main() {
         exit 1
     fi
 
-    if ! [["$THRESHOLD" =~ ^[0-9]+$ ]] || [ "$THRESHOLD" -lt 1] || ["$THRESHOLD" -gt 100]; then
+    if ! [[ "$THRESHOLD" =~ ^[0-9]+$ ]] || [ "$THRESHOLD" -lt 1 ] || [ "$THRESHOLD" -gt 100 ]; then
         echo "Error: Threshold must be an integer between 1 and 100." >&2
         exit 1
     fi
 
-    if ! [[ "%MAX_COUNT" =~ ^[0-9]+$ ]]; then
+    if ! [[ "$MAX_COUNT" =~ ^[0-9]+$ ]]; then
          echo "Error: COUNT (-m) must be a non-negative integer." >&2
          exit 1
     fi
 
-    if [ ! -d "&LOG_DIR" ]; then
+    if [ ! -d "$LOG_DIR" ]; then
         echo "Error: LOG_DIR '$LOG_DIR' does not exist." >&2
         exit 1
     fi
@@ -104,7 +104,7 @@ main() {
         exit 1
     fi
 
-    mkdir -p "$BACKUP_DIR" 2>/dev/null || {echo "Error: Cannot create backup dir." >&2; exit 1;
+    mkdir -p "$BACKUP_DIR" 2>/dev/null || { echo "Error: Cannot create backup dir." >&2; exit 1; }
 
 
     if [ ! -w "$BACKUP_DIR" ]; then
@@ -184,8 +184,7 @@ main() {
     exit 0
 }
 
-if [[ "${BATH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
-fi
+
+main "$@"
 
  

@@ -27,7 +27,7 @@ percent_of(){
 }
 
 
-select files(){
+select_files(){
     local need_bytes="$1" max_count="$2"
     local freed=0 count=0 rec name blocks bsize
 
@@ -105,7 +105,7 @@ main() {
     fi
 
     mkdir -p "$BACKUP_DIR" 2>/dev/null || {echo "Error: Cannot create backup dir." >&2; exit 1;
-}
+
 
     if [ ! -w "$BACKUP_DIR" ]; then
         echo "Error: Backup dir is not writable." >&2

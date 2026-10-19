@@ -3,7 +3,7 @@
 
 export LC_ALL=C
 
-main() { 
+
 
 echo "Enter path to the directory \log:"
 read -r LOG_DIR
@@ -203,4 +203,3 @@ select_files() {
 
     exit 0
 }
-main "$@" 

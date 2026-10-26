@@ -97,9 +97,9 @@ main() {
     local dir_name
     dir_name=$(basename -- "$real_path")
 
-    if [ "$dir_name" != "log" ]; then
-        echo "Error: The path should ends with /log" >&2
-        exit 1
+    if [[ "$LOG_DIR" != *"/log" ]]; then
+       echo "Error: The path should end with /log" >&2
+       exit 1
     fi
 
     if [ "$(realpath -m "$LOG_DIR")" == "$(realpath -m "$BACKUP_DIR")" ]; then
@@ -121,7 +121,7 @@ main() {
 
     local used total
     read -r used total < <(get_fs_bytes "$LOG_DIR")
-    if [ -z "$total"] || [ "$total" -eq 0]; then
+    if [ -z "$total" ] || [ "$total" -eq 0 ]; then
         echo "Error: Cannot get filesystem usage for "$LOG_DIR"." >&2
         exit 1
     fi
@@ -178,7 +178,12 @@ main() {
     echo "Removing source files..."
     local f
     for f in "${SELECTED[@]}"; do
-        rm -f -- "$LOG_DIR/$f" || echo "Warning: Failed to remove $f" >&2
+        if [ -f "$LOG_DIR/$f" ]; then
+           rm -f "$LOG_DIR/$f"
+           echo "Deleted : $LOG_DIR/$f"
+        else
+           echo "Warning: File $LOG_DIR/$f not found" >&2
+        fi
     done
 
     read -r used total < <(get_fs_bytes "$LOG_DIR")

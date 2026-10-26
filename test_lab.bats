@@ -48,31 +48,34 @@ setup() {
 }
 
 @test "should do nothing if usage is below threshold" {
-   mkdir -p /tmp/test_log
-   echo "test data" > /tmp/test_log/app.log
+   mkdir -p /tmp/log
+   echo "test data" > /tmp/log/app.log
    sudo rm -f /tmp/backup/*.tar.gz
-   run bash -c "sudo ./bash_code/CA_lab_1_code.sh -p /tmp/test_log -b /tmp/backup -x 100"
+   run bash -c "sudo ./bash_code/CA_lab_1_code.sh -p /tmp/log -b /tmp/backup -x 100"
    assert_success
    run bash -c "ls /tmp/backup/*.tar.gz 2>/dev/null | wc -l"
    assert_output "0"
-   sudo rm -rf /tmp/test_log tmp/backup
+   sudo rm -rf /tmp/log tmp/backup
 }
 
 @test "archive should contain files" {
-   mkdir -p /tmp/test_log
-   echo "test data" > /tmp/test_log/app.log
-   run bash -c "sudo ./bash_code/CA_lab_1_code.sh -p /tmp/test_log -b /tmp/test_backup -x 1"
+   mkdir -p /tmp/log
+   echo "test data" > /tmp/log/app.log
+   sudo rm -rf /tmp/test_backup
+   run bash -c "sudo ./bash_code/CA_lab_1_code.sh -p /tmp/log -b /tmp/test_backup -x 1"
    assert_success
    ARCHIVE=$(ls /tmp/test_backup/*.tar.gz | head -n 1)
    run tar -tzf "$ARCHIVE"
-   sudo rm -rf /tmp/test_log /tmp/test_backup
+   sudo rm -rf /tmp/log /tmp/test_backup
 } 
 
 @test "file should be deleted after archiving" {
-   mkdir -p /tmp/test_log
-   echo "test data" > /tmp/test_log/app.log
-   run bash -c "sudo ./bash_code/CA_lab_1_code.sh -p /tmp/test_log -b /tmp/test_backup -x 1"
+   mkdir -p /tmp/log
+   echo "test data" > /tmp/log/app.log
+   dd if=/dev/zero of=/tmp/log/big.log bs=1M count=100
+   sudo rm -rf /tmp/test_backup
+   run bash -c "sudo ./bash_code/CA_lab_1_code.sh -p /tmp/log -b /tmp/test_backup -x 1"
    assert_success
-   assert_file_not_exist /tmp/test_log/app.log
-   sudo rm -rf /tmp/test_log /tmp/test_backup
+   assert_file_not_exist /tmp/log/app.log
+   sudo rm -rf /tmp/log /tmp/test_backup
 }

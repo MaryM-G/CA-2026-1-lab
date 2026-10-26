@@ -73,13 +73,13 @@ main() {
         exit 1
     fi
 
-    if ! [[ "$THRESHOLD" =~ ^[0-9]{1,3}$ ]] || [ "$THRESHOLD" -lt 1 ] || [ "$THRESHOLD" -gt 100 ]; then
+    if ! [[ "$THRESHOLD" =~ ^[0-9]+$ ]] || [ "$THRESHOLD" -lt 1 ] || [ "$THRESHOLD" -gt 100 ]; then
         echo "Error: Threshold must be an integer between 1 and 100." >&2
         exit 1
     fi
 
-    if ! [[ "MAX_COUNT" =~ ^[0-9]{1-3}$ ]]; then
-        "Error: COUNT (-m) must be a non-negative integer." >&2
+    if ! [[ "$MAX_COUNT" =~ ^[0-9]+$ ]]; then
+        echo "Error: COUNT (-m) must be a non-negative integer." >&2
         exit 1
     fi
 

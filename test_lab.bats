@@ -1,10 +1,10 @@
-#!/ /usr/bin/env bash
+#! /usr/bin/env bash
 
 setup() {
    load 'test_helper/bats-support/load'
    load 'test_helper/bats-assert/load'
    load 'test_helper/bats-file/load'
-   DIR="$( cd "$( dirname "$BATS_TEST_FILENAME" )" >/dev/null 2>81 && pwd )"
+   DIR="$( cd "$( dirname "$BATS_TEST_FILENAME" )" >/dev/null 2>&1 && pwd )"
    PATH="$DIR/.../src:$PATH"
 }
 
@@ -30,25 +30,25 @@ setup() {
 } 
 
 @test "should fail if path doesnt end with /log" {
-   mkfir -p /tmp/logs
-   run bash -c "echo '/tmp/logs' | sudo /bash_code/CA_lab_1_code.sh"
+   mkdir -p /tmp/logs
+   run bash -c "echo '/tmp/logs' | sudo ./bash_code/CA_lab_1_code.sh"
    assert_failure
    assert_output --partial ""
    rm -rf /tmp/logs
 }
 
 @test "should fail if threshold is more than 100" {
-   run bash -c "sudo /bash_code/CA_lab_1_code.sh -p /tmp/test_log -b /tmp/backup -x 150"
+   run bash -c "sudo ./bash_code/CA_lab_1_code.sh -p /tmp/test_log -b /tmp/backup -x 150"
    assert_failure
 }
 
 @test "should fail if threshold is less than 1" {
-   run bash -c "sudo /bash_code/CA_lab_1_code.sh -p /tmp/test_log -b /tmp/backup -x 0"
+   run bash -c "sudo ./bash_code/CA_lab_1_code.sh -p /tmp/test_log -b /tmp/backup -x 0"
    assert_failure
 }
 
 @test "should fail if threshold isnt a number" {
-   run bash -c "sudo /bash_code/CA_lab_1_code.sh -p /tmp/test_log -b /tmp/backup-x abc"
+   run bash -c "sudo ./bash_code/CA_lab_1_code.sh -p /tmp/test_log -b /tmp/backup -x abc"
    assert_failure
 }
 
@@ -56,9 +56,9 @@ setup() {
    mkdir -p /tmp/test_log
    echo "test data" > /tmp/test_log/app.log
    rm -f /tmp/backup/*.tar.gz
-   run bash -c "sudo /bash_code/CA_lab_1_code.sh -p /tmp/test_log -b /tmp/backup -x 100"
+   run bash -c "sudo ./bash_code/CA_lab_1_code.sh -p /tmp/test_log -b /tmp/backup -x 100"
    assert_success
-   run bash -c "ls /tmp/backup/*.tar.gz 2>/dev/null | wc -1"
+   run bash -c "ls /tmp/backup/*.tar.gz 2>/dev/null | wc -l"
    assert_output "0"
    rm -rf /tmp/test_log tmp/backup
 }
@@ -66,7 +66,7 @@ setup() {
 @test "archive should contain files" {
    mkdir -p /tmp/test_log
    echo "test data" > /tmp/test_log/app.log
-   run bash -c "sudo /bash_code/CA_lab_1_code.sh -p /tmp/test_log -b /tmp/test_backup -x 1"
+   run bash -c "sudo ./bash_code/CA_lab_1_code.sh -p /tmp/test_log -b /tmp/test_backup -x 1"
    assert_success
    ARCHIVE=$(ls /tmp/test_backup/*.tar.gz | head -n 1)
    run tar -tzf "$ARCHIVE"
@@ -75,9 +75,9 @@ setup() {
 
 @test "file should be deleted after archiving" {
    mkdir -p /tmp/test_log
-   echo "test data" > /tmp/test_logs/app.log
-   run bash -c "sudo /bash_code/CA_lab_1 -p /tmp/test_log -b /tmp/test_backup -x 1"
+   echo "test data" > /tmp/test_log/app.log
+   run bash -c "sudo ./bash_code/CA_lab_1 -p /tmp/test_log -b /tmp/test_backup -x 1"
    assert_success
-   assert_file_not_exist /tmp/test_logs/app.log
+   assert_file_not_exist /tmp/test_log/app.log
    rm -rf /tmp/test_log /tmp/test_backup
 }

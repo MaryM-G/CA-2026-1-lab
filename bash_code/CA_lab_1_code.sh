@@ -3,6 +3,15 @@
 
 export LC_ALL=C
 
+umounting() {
+    if mountpoint -q "$LOG_DIR"; then
+        umount "$LOG_DIR"
+    fi
+    if [ -n "$LOOP_DEV" ]; then
+        losetup -d "$LOOP_DEV"
+    fi
+}
+trap umounting EXIT
 usage() {
     echo "Usage: $0 -p LOG_DIR -b BACKUP_DIR [-x THRESHOLD] [-m COUNT]"
     echo "  -p LOG_DIR    Каталог с лог-файлами"
@@ -105,6 +114,37 @@ main() {
     if [ "$(realpath -m "$LOG_DIR")" == "$(realpath -m "$BACKUP_DIR")" ]; then
         echo "Error: LOG_DIR and BACKUP_DIR must be different." >&2
         exit 1
+    fi
+
+    local IMAGE_FILE="/tmp/1gb_lab.img"
+    LOOP_DEV=""
+
+    if [ ! -f "$IMAGE_FILE" ]; then
+        fallocate -l 1G "$IMAGE_FILE"
+        mkfs.ext4 -F "$IMAGE_FILE"
+    fi
+
+    LOOP_DEV=$(losetup -f)
+    if [ -z "$LOOP_DEV" ]; then
+        echo "No free loop devices"
+        exit 1
+    fi
+
+    if ! mountpoint -q "$LOG_DIR"; then
+        local TEMP_BACKUP="/tmp/mount_backup$$"
+        mkdir -p "$TEMP_BACKUP"
+        if [ -n "$(ls -A "$LOG_DIR")" ]; then
+            cp -a "$LOG_DIR"/* "$TEMP_BACKUP/"
+        fi
+        losetup "$LOOP_DEV" "$IMAGE_FILE" || { echo "Losetup failed" >&2; exit 1; }
+        mount "$LOOP_DEV" "$LOG_DIR" || { echo "Mount failed" >&2; losetup -d "$LOOP_DEV"; exit 1; }
+        chown "$SUDO_USER":"$SUDO_USER" "$LOG_DIR"
+        if [ -n "$(ls -A "$TEMP_BACKUP")" ]; then
+            cp -a "$TEMP_BACKUP"/* "$LOG_DIR/"
+        fi
+        rm -rf "$TEMP_BACKUP"
+    else
+        echo "Directory is already a mountpoint"
     fi
 
     mkdir -p "$BACKUP_DIR" 2>/dev/null || { echo "Error: Cannot create backup dir." >&2; exit 1; }

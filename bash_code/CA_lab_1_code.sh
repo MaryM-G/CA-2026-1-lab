@@ -91,6 +91,17 @@ main() {
         exit 1
     fi
 
+    local real_path
+    real_path=$(realpath -m -- "$LOG_DIR")
+
+    local dir_name
+    dir_name=$(basename -- "$real_path")
+
+    if [ "$dir_name" != "log" ]; then
+        echo "Error: The path should ends with /log" >&2
+        exit 1
+    fi
+
     if [ "$(realpath -m "$LOG_DIR")" == "$(realpath -m "$BACKUP_DIR")" ]; then
         echo "Error: LOG_DIR and BACKUP_DIR must be different." >&2
         exit 1
